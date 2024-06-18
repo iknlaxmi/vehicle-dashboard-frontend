@@ -18,7 +18,6 @@ const RecentData = () => {
   const [cpoAvgMSRP, setCpoAvgMSRP] = useState(0);
 
   useEffect(() => {
-    // console.log("inventory", inventory);
     // Function to extract numeric value from price string and convert to number
     function extractPrice(priceStr) {
       return parseFloat(priceStr.replace(/[^0-9.-]+/g, ""));
@@ -30,7 +29,11 @@ const RecentData = () => {
     );
     setNewUnits(new_inventory.length);
     setNewMSRP(total_new_MSRP);
-    setNewAvgMSRP(Math.trunc(total_new_MSRP / new_inventory.length));
+    if (new_inventory.length) {
+      setNewAvgMSRP(Math.trunc(total_new_MSRP / new_inventory.length));
+    } else {
+      setNewAvgMSRP(0);
+    }
 
     //used inventory details
     const used_inventory = inventory.filter(
@@ -43,8 +46,11 @@ const RecentData = () => {
     );
     setUsedUnits(used_inventory.length);
     setUsedMSRP(total_used_MSRP);
-
-    setUsedAvgMSRP(Math.trunc(total_used_MSRP / used_inventory.length));
+    if (used_inventory.length) {
+      setUsedAvgMSRP(Math.trunc(total_used_MSRP / used_inventory.length));
+    } else {
+      setUsedAvgMSRP(0);
+    }
 
     //cpo inventory details
     const cpo_inventory = inventory.filter((item) => item.condition === "cpo");
@@ -55,7 +61,11 @@ const RecentData = () => {
     );
     setCpoUnits(cpo_inventory.length);
     setCpoMSRP(total_cpo_MSRP);
-    setCpoAvgMSRP(Math.trunc(total_cpo_MSRP / cpo_inventory.length));
+    if (cpo_inventory.length) {
+      setCpoAvgMSRP(Math.trunc(total_cpo_MSRP / cpo_inventory.length));
+    } else {
+      setCpoAvgMSRP(0);
+    }
   }, [inventory, inventoryStatus]);
 
   return (
