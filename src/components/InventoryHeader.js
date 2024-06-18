@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllInventory } from "../features/inventory/inventorySlice";
 
-const InventoryHeader = () => {
+const InventoryHeader = ({ filterInventory }) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [selectedMakes, setSelectedMakes] = useState([]);
   const [selectedDurations, setSelectedDurations] = useState([]);
 
-  const dispatch = useDispatch();
   const inventory = useSelector((state) => state.inventory.items);
   const inventoryStatus = useSelector((state) => state.inventory.status);
 
-  const [make, setMake] = useState("");
-  const [duration, setDuration] = useState("last_month");
-
-  const makes = ["Ford", "Cadillac", "Jeep"];
+  const makes = ["GMC", "Toyota", "Cadillac", "Ram", "Chevrolet", "Buick"];
   const durations = [
     "Last Month",
     "This Month",
@@ -45,40 +40,29 @@ const InventoryHeader = () => {
   };
 
   const applyFilters = () => {
-    console.log("Applying Filters:", { selectedMakes, selectedDurations });
     setDrawerOpen(false);
+    filterInventory(selectedMakes, selectedDurations);
   };
 
   const removeFilters = () => {
     setSelectedMakes([]);
     setSelectedDurations([]);
     setDrawerOpen(false);
+    filterInventory([], []);
   };
 
-  useEffect(() => {
-    console.log("stat", inventoryStatus);
-    if (inventoryStatus === "idle") {
-      dispatch(fetchAllInventory());
-    }
-    // dispatch(fetchAllInventory());
-  }, [inventoryStatus, dispatch, make, duration]);
-
-  //   const handleFilterChange = () => {
-  //     dispatch(fetchInventory({ make, duration }));
-  //   };
   return (
     <div className="relative">
       <div className="flex items-center justify-between p-4 border-b border-gray-300">
         <h1 className="text-2xl font-bold">Inventory</h1>
         <div className="flex items-center space-x-4">
-          <div>
-            <label htmlFor="dealer" className="sr-only">
-              Select Dealer
-            </label>
+          <div className="flex items-center space-x-2">
+            <label className="whitespace-nowrap">Select Dealer</label>
             <select
               id="dealer"
               name="dealer"
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              className="block w-full pl-3 pr-10 py-2 text-base border focus:outline-none sm:text-sm rounded-md"
+              style={{ borderColor: "#ff9434" }}
             >
               <option>AAA MITSUBISHI DEALER</option>
               {/* Add more options as needed */}
@@ -88,7 +72,7 @@ const InventoryHeader = () => {
             onClick={toggleDrawer}
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            <svg
+            {/* <svg
               className="w-5 h-5 mr-2 text-gray-400"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -100,6 +84,15 @@ const InventoryHeader = () => {
                 d="M10 4a1 1 0 01.993.883L11 5v1h2a1 1 0 01.117 1.993L13 8h-2v2a1 1 0 01-1.993.117L9 10V8H7a1 1 0 01-.117-1.993L7 6h2V5a1 1 0 011-1z"
                 clipRule="evenodd"
               />
+            </svg> */}
+            <svg
+              className="w-5 h-5 mr-2 text-[#ff9434]"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M3 5h14v2H3V5zm4 4h6v2H7V9zm-2 4h10v2H5v-2z" />
             </svg>
             FILTER DATA BY
           </button>
@@ -107,22 +100,26 @@ const InventoryHeader = () => {
       </div>
 
       {isDrawerOpen && (
-        <div className="absolute top-0 right-0 z-50 w-64 h-full p-4 bg-white border-l border-gray-300 shadow-lg">
+        <div className="fixed top-0 right-0 z-50  h-screen  bg-white border-l border-gray-300 shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={toggleDrawer}
-              className="text-gray-600 hover:text-gray-800 focus:outline-none"
-            >
-              &lt;
-            </button>
-            <h2 className="text-xl font-bold">Filter Data By</h2>
+            <div className="flex items-center">
+              <button
+                onClick={toggleDrawer}
+                className="text-gray-600 hover:text-gray-800 focus:outline-none m-2"
+                style={{ fontSize: "2rem" }}
+              >
+                &lt;
+              </button>
+              <h2 className="text-xl font-bold ml-2">Filter Data By</h2>
+            </div>
           </div>
-          <div className="mb-4">
+
+          <div className="mb-4 bg-white">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Make
             </label>
             {makes.map((make) => (
-              <div key={make} className="flex items-center mb-2">
+              <div key={make} className="flex items-center mb-2 pl-2">
                 <input
                   type="checkbox"
                   id={`make-${make}`}
@@ -140,12 +137,12 @@ const InventoryHeader = () => {
               </div>
             ))}
           </div>
-          <div className="mb-4">
+          <div className="mb-4 bg-white">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Duration
             </label>
             {durations.map((duration) => (
-              <div key={duration} className="flex items-center mb-2">
+              <div key={duration} className="flex items-center mb-2 pl-2">
                 <input
                   type="checkbox"
                   id={`duration-${duration}`}
@@ -163,19 +160,32 @@ const InventoryHeader = () => {
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-4 bg-white">
             <button
               onClick={applyFilters}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="m-2 w-[210px] h-14 px-4 py-2 text-sm font-medium text-white bg-[#ff9434] border border-transparent rounded-md "
             >
               APPLY FILTERS
             </button>
-            <button
-              onClick={removeFilters}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              REMOVE ALL FILTERS
-            </button>
+            <div className="flex items-center justify-between  bg-white">
+              <button
+                onClick={removeFilters}
+                className="m-2 flex items-center justify-center w-[210px] h-14 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-[#ff9434] rounded-md"
+              >
+                <svg
+                  className="w-4 h-4 mr-2 text-white bg-[#ff9434] rounded-lg"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                REMOVE ALL FILTERS
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -5,31 +5,42 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 
-const InventoryCountChart = ({ inventory }) => {
+const AverageMsrpChart = ({ inventory }) => {
   const [filter, setFilter] = useState("new");
-
+  function extractPrice(priceStr) {
+    return parseFloat(priceStr.replace(/[^0-9.-]+/g, ""));
+  }
   const data = inventory
     .filter((item) => item.condition === filter)
     .reduce((acc, item) => {
       const date = new Date(item.timestamp).toLocaleDateString();
       const existing = acc.find((d) => d.date === date);
       if (existing) {
+        existing.total += extractPrice(item.price);
         existing.count += 1;
+        existing.avg = existing.total / existing.count;
       } else {
-        acc.push({ date, count: 1 });
+        acc.push({
+          date,
+          total: extractPrice(item.price),
+          count: 1,
+          avg: extractPrice(item.price),
+        });
       }
       return acc;
     }, []);
 
+  const formatYAxis = (tickItem) => {
+    // Format the number with $ symbol and k for thousands
+    return `$${tickItem / 1000}k`;
+  };
   return (
     <div className="mb-12">
       <div className="m-4 flex items-center space-x-4 mb-12">
-        <span className="text-lg font-medium">Inventory Count</span>
+        <span className="text-lg font-medium">Average MSRP in USD</span>
 
         <div
           className={`border-2 border-[#ff9434] w-24 h-12 rounded-md flex items-center justify-center ${
@@ -79,14 +90,13 @@ const InventoryCountChart = ({ inventory }) => {
         <BarChart data={data} style={{ backgroundColor: "#FFFFFF" }}>
           <CartesianGrid vertical={false} />
           <XAxis dataKey="date" />
-          <YAxis />
-          {/* <Tooltip /> */}
-          {/* <Legend /> */}
-          <Bar dataKey="count" fill="#FF7300" />
+          <YAxis tickFormatter={formatYAxis} />
+
+          <Bar dataKey="avg" fill="#FF7300" />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 };
 
-export default InventoryCountChart;
+export default AverageMsrpChart;

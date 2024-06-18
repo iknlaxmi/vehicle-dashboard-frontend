@@ -59,7 +59,7 @@ const RecentData = () => {
   }, [inventory, inventoryStatus]);
 
   return (
-    <div>
+    <div className="mb-12">
       <h3 className="text-left m-4 font-semibold">
         {" "}
         Recent Gathered Data {today_date.getDate()}/{today_date.getMonth() + 1}/

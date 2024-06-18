@@ -1,24 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-export const fetchAllInventory = createAsyncThunk(
-  "inventory/fetchAllInventory",
+export const fetchInventory = createAsyncThunk(
+  "inventory/fetchInventory",
   async () => {
-    const response = await axios.get("http://localhost:3021/api/inventory/all");
-
-    return response.data;
-  }
-);
-
-export const fetchFilterInventory = createAsyncThunk(
-  "inventory/fetchFilterInventory",
-  async (params) => {
-    const response = await axios.get(
-      "http://localhost:3021/api/inventory/filter",
-      {
-        params,
-      }
-    );
+    const response = await axios.get("http://localhost:3021/api/inventory");
     return response.data;
   }
 );
@@ -33,14 +19,14 @@ const inventorySlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllInventory.pending, (state) => {
+      .addCase(fetchInventory.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchAllInventory.fulfilled, (state, action) => {
+      .addCase(fetchInventory.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = action.payload;
       })
-      .addCase(fetchAllInventory.rejected, (state, action) => {
+      .addCase(fetchInventory.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
